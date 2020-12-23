@@ -66,7 +66,7 @@ export class ElasticSearchService implements Search {
     searchParams => {field: value}
      */
     async typeSearch(request: TypeSearchRequest): Promise<SearchResponse> {
-        const { queryParams, resourceType } = request;
+        const { queryParams, resourceType, tenantId } = request;
         try {
             const from = queryParams[SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]
                 ? Number(queryParams[SEARCH_PAGINATION_PARAMS.PAGES_OFFSET])
@@ -75,6 +75,8 @@ export class ElasticSearchService implements Search {
             const size = queryParams[SEARCH_PAGINATION_PARAMS.COUNT]
                 ? Number(queryParams[SEARCH_PAGINATION_PARAMS.COUNT])
                 : DEFAULT_SEARCH_RESULTS_PER_PAGE;
+
+            const indexForES = tenantId ? `${tenantId}-${resourceType}` : resourceType;
 
             // Exp. {gender: 'male', name: 'john'}
             const searchParameterToValue = { ...queryParams };
@@ -100,7 +102,7 @@ export class ElasticSearchService implements Search {
             const filter = this.filterRulesForActiveResources;
 
             const params = {
-                index: resourceType.toLowerCase(),
+                index: indexForES.toLowerCase(),
                 from,
                 size,
                 body: {
