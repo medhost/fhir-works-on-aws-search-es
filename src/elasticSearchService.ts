@@ -14,12 +14,14 @@ import {
     SearchResponse,
     GlobalSearchRequest,
     SearchEntry,
+    SearchFilter,
     FhirVersion,
+    InvalidSearchParameterError,
 } from 'fhir-works-on-aws-interface';
 import { ElasticSearch } from './elasticSearch';
 import { DEFAULT_SEARCH_RESULTS_PER_PAGE, SEARCH_PAGINATION_PARAMS } from './constants';
 import { buildIncludeQueries, buildRevIncludeQueries } from './searchInclusions';
-import { getDocumentField } from './searchParametersMapping';
+import { FHIRSearchParametersRegistry } from './FHIRSearchParametersRegistry';
 
 const ITERATIVE_INCLUSION_PARAMETERS = ['_include:iterate', '_revinclude:iterate'];
 
@@ -34,39 +36,50 @@ const NON_SEARCHABLE_PARAMETERS = [
 
 const MAX_INCLUDE_ITERATIVE_DEPTH = 5;
 
+const escapeQueryString = (string: string) => {
+    return string.replace(/\//g, '\\/');
+};
+
 // eslint-disable-next-line import/prefer-default-export
 export class ElasticSearchService implements Search {
-    private readonly filterRulesForActiveResources: any[];
+    private readonly searchFiltersForAllQueries: SearchFilter[];
 
     private readonly cleanUpFunction: (resource: any) => any;
 
     private readonly fhirVersion: FhirVersion;
 
+    private readonly fhirSearchParametersRegistry: FHIRSearchParametersRegistry;
+
     /**
-     * @param filterRulesForActiveResources - If you are storing both History and Search resources
-     * in your elastic search you can filter out your History elements by supplying a filter argument like:
-     * [{ match: { documentStatus: 'AVAILABLE' }}]
+     * @param searchFiltersForAllQueries - If you are storing both History and Search resources
+     * in your elastic search you can filter out your History elements by supplying a list of SearchFilters
+     *
      * @param cleanUpFunction - If you are storing non-fhir related parameters pass this function to clean
      * the return ES objects
      * @param fhirVersion
      */
     constructor(
-        filterRulesForActiveResources: any[] = [],
+        searchFiltersForAllQueries: SearchFilter[] = [],
         cleanUpFunction: (resource: any) => any = function passThrough(resource: any) {
             return resource;
         },
         fhirVersion: FhirVersion = '4.0.1',
     ) {
-        this.filterRulesForActiveResources = filterRulesForActiveResources;
+        this.searchFiltersForAllQueries = searchFiltersForAllQueries;
         this.cleanUpFunction = cleanUpFunction;
         this.fhirVersion = fhirVersion;
+        this.fhirSearchParametersRegistry = new FHIRSearchParametersRegistry(fhirVersion);
+    }
+
+    async getCapabilities() {
+        return this.fhirSearchParametersRegistry.getCapabilities();
     }
 
     /*
     searchParams => {field: value}
      */
     async typeSearch(request: TypeSearchRequest): Promise<SearchResponse> {
-        const { queryParams, resourceType, tenantId } = request;
+        const { queryParams, searchFilters, resourceType, tenantId } = request;
         try {
             const from = queryParams[SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]
                 ? Number(queryParams[SEARCH_PAGINATION_PARAMS.PAGES_OFFSET])
@@ -83,23 +96,72 @@ export class ElasticSearchService implements Search {
 
             const must: any = [];
             // TODO Implement fuzzy matches
-            Object.entries(searchParameterToValue).forEach(([searchParameter, value]) => {
+            Object.entries(searchParameterToValue).forEach(([searchParameter, searchValue]) => {
                 if (NON_SEARCHABLE_PARAMETERS.includes(searchParameter)) {
                     return;
                 }
-                const field = getDocumentField(searchParameter);
-                const query = {
-                    query_string: {
-                        fields: [field],
-                        query: value,
-                        default_operator: 'AND',
-                        lenient: true,
-                    },
-                };
-                must.push(query);
+                const value = escapeQueryString(searchValue as string);
+                const fhirSearchParam = this.fhirSearchParametersRegistry.getSearchParameter(
+                    resourceType,
+                    searchParameter,
+                );
+                if (fhirSearchParam === undefined) {
+                    throw new InvalidSearchParameterError(
+                        `Invalid search parameter '${searchParameter}' for resource type ${resourceType}`,
+                    );
+                }
+
+                const queries = fhirSearchParam.compiled.map(compiled => {
+                    const fields = [compiled.path, `${compiled.path}.*`];
+
+                    const pathQuery = {
+                        query_string: {
+                            fields,
+                            query: value,
+                            default_operator: 'AND',
+                            lenient: true,
+                        },
+                    };
+
+                    // In most cases conditions are used for fields that are an array of objects
+                    // Ideally we should be using a nested query, but that'd require to update the index mappings.
+                    //
+                    // Simply using an array of bool.must is good enough for most cases. The result will contain the correct documents, however it MAY contain additional documents
+                    // https://www.elastic.co/guide/en/elasticsearch/reference/current/nested.html
+                    if (compiled.condition !== undefined) {
+                        return {
+                            bool: {
+                                must: [
+                                    pathQuery,
+                                    {
+                                        query_string: {
+                                            fields: [compiled.condition[0], `${compiled.condition[0]}.*`],
+                                            query: compiled.condition[2],
+                                            lenient: true,
+                                        },
+                                    },
+                                ],
+                            },
+                        };
+                    }
+                    return pathQuery;
+                });
+
+                if (queries.length === 1) {
+                    must.push(queries[0]);
+                } else {
+                    must.push({
+                        bool: {
+                            should: queries,
+                        },
+                    });
+                }
             });
 
-            const filter = this.filterRulesForActiveResources;
+            const filter: SearchFilter[] = ElasticSearchService.buildElasticSearchFilter([
+                ...this.searchFiltersForAllQueries,
+                ...(searchFilters ?? []),
+            ]);
 
             const params = {
                 index: indexForES.toLowerCase(),
@@ -108,8 +170,8 @@ export class ElasticSearchService implements Search {
                 body: {
                     query: {
                         bool: {
-                            must,
                             filter,
+                            must,
                         },
                     },
                 },
@@ -246,29 +308,35 @@ export class ElasticSearchService implements Search {
         request: TypeSearchRequest,
         iterative?: true,
     ): Promise<SearchEntry[]> {
+        const { queryParams, searchFilters, allowedResourceTypes, baseUrl } = request;
+        const filter: SearchFilter[] = ElasticSearchService.buildElasticSearchFilter([
+            ...this.searchFiltersForAllQueries,
+            ...(searchFilters ?? []),
+        ]);
+
         const includeSearchQueries = buildIncludeQueries(
-            request.queryParams,
+            queryParams,
             searchEntries.map(x => x.resource),
-            this.filterRulesForActiveResources,
-            this.fhirVersion,
+            filter,
+            this.fhirSearchParametersRegistry,
             iterative,
         );
 
         const revIncludeSearchQueries = buildRevIncludeQueries(
-            request.queryParams,
+            queryParams,
             searchEntries.map(x => x.resource),
-            this.filterRulesForActiveResources,
-            this.fhirVersion,
+            filter,
+            this.fhirSearchParametersRegistry,
             iterative,
         );
 
-        const lowerCaseAllowedResourceTypes = new Set(request.allowedResourceTypes.map(r => r.toLowerCase()));
+        const lowerCaseAllowedResourceTypes = new Set(allowedResourceTypes.map(r => r.toLowerCase()));
         const allowedInclusionQueries = [...includeSearchQueries, ...revIncludeSearchQueries].filter(query =>
             lowerCaseAllowedResourceTypes.has(query.index),
         );
 
         const { hits } = await this.executeQueries(allowedInclusionQueries);
-        return this.hitsToSearchEntries({ hits, baseUrl: request.baseUrl, mode: 'include' });
+        return this.hitsToSearchEntries({ hits, baseUrl, mode: 'include' });
     }
 
     private async processIterativeSearchInclusions(
@@ -334,5 +402,95 @@ export class ElasticSearchService implements Search {
     async globalSearch(request: GlobalSearchRequest): Promise<SearchResponse> {
         console.log(request);
         throw new Error('Method not implemented.');
+    }
+
+    private static buildElasticSearchFilterPart(
+        key: string,
+        value: string,
+        operator: '==' | '!=' | '>' | '<' | '>=' | '<=',
+    ): any {
+        switch (operator) {
+            case '==': {
+                return {
+                    match: {
+                        [key]: value,
+                    },
+                };
+            }
+            case '!=': {
+                return {
+                    bool: {
+                        must_not: [
+                            {
+                                term: {
+                                    [key]: value,
+                                },
+                            },
+                        ],
+                    },
+                };
+            }
+            case '>': {
+                return {
+                    range: {
+                        [key]: {
+                            gt: value,
+                        },
+                    },
+                };
+            }
+            case '<': {
+                return {
+                    range: {
+                        [key]: {
+                            lt: value,
+                        },
+                    },
+                };
+            }
+            case '>=': {
+                return {
+                    range: {
+                        [key]: {
+                            gte: value,
+                        },
+                    },
+                };
+            }
+            case '<=': {
+                return {
+                    range: {
+                        [key]: {
+                            lte: value,
+                        },
+                    },
+                };
+            }
+            default: {
+                throw new Error('Unknown comparison operator');
+            }
+        }
+    }
+
+    private static buildElasticSearchFilter(searchFilters: SearchFilter[]): any {
+        return searchFilters.map((searchFilter: SearchFilter) => {
+            const { key, value, comparisonOperator, logicalOperator } = searchFilter;
+
+            if (value.length === 0) {
+                throw new Error('Malformed SearchFilter, at least 1 value is required for the comparison');
+            } else if (value.length === 1) {
+                return this.buildElasticSearchFilterPart(key, value[0], comparisonOperator);
+            } else {
+                const esLogicalOperator = logicalOperator === 'OR' ? 'should' : 'filter';
+                const esQueries = value.map((v: string) => {
+                    return this.buildElasticSearchFilterPart(key, v, comparisonOperator);
+                });
+                return {
+                    bool: {
+                        [esLogicalOperator]: esQueries,
+                    },
+                };
+            }
+        });
     }
 }
