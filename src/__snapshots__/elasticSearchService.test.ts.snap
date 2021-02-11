@@ -1043,7 +1043,7 @@ Array [
             "filter": Array [
               Object {
                 "bool": Object {
-                  "filter": Array [
+                  "should": Array [
                     Object {
                       "match": Object {
                         "someFieldThatTellsIfTheResourceIsActive": "AVAILABLE",
@@ -1277,93 +1277,7 @@ Array [
 ]
 `;
 
-exports[`typeSearch query snapshots for simple queryParams queryParams={"_count":10,"_getpagesoffset":2,"_id":"11111111-1111-1111-1111-111111111111","gender":"female","name":"Emily","_format":"json"} 1`] = `
-Array [
-  Array [
-    Object {
-      "body": Object {
-        "query": Object {
-          "bool": Object {
-            "filter": Array [
-              Object {
-                "match": Object {
-                  "someFieldThatTellsIfTheResourceIsActive": "AVAILABLE",
-                },
-              },
-            ],
-            "must": Array [
-              Object {
-                "query_string": Object {
-                  "default_operator": "AND",
-                  "fields": Array [
-                    "id",
-                    "id.*",
-                  ],
-                  "lenient": true,
-                  "query": "11111111-1111-1111-1111-111111111111",
-                },
-              },
-              Object {
-                "query_string": Object {
-                  "default_operator": "AND",
-                  "fields": Array [
-                    "gender",
-                    "gender.*",
-                  ],
-                  "lenient": true,
-                  "query": "female",
-                },
-              },
-              Object {
-                "query_string": Object {
-                  "default_operator": "AND",
-                  "fields": Array [
-                    "name",
-                    "name.*",
-                  ],
-                  "lenient": true,
-                  "query": "Emily",
-                },
-              },
-            ],
-          },
-        },
-      },
-      "from": 2,
-      "index": "patient",
-      "size": 10,
-    },
-  ],
-]
-`;
-
-exports[`typeSearch query snapshots for simple queryParams queryParams={"_count":10,"_getpagesoffset":2} 1`] = `
-Array [
-  Array [
-    Object {
-      "body": Object {
-        "query": Object {
-          "bool": Object {
-            "filter": Array [
-              Object {
-                "match": Object {
-                  "someFieldThatTellsIfTheResourceIsActive": "AVAILABLE",
-                },
-              },
-            ],
-            "must": Array [],
-          },
-        },
-      },
-      "from": 2,
-      "index": "patient",
-      "size": 10,
-    },
-  ],
-]
-`;
-
-exports[`typeSearch query snapshots for simple queryParams queryParams={"_format":"json"} 1`] = `
+exports[`typeSearch query snapshots for no queryParams, ACTIVE filter & changing filters filterParams=[] 1`] = `
 Array [
   Array [
     Object {
@@ -1389,7 +1303,107 @@ Array [
 ]
 `;
 
-exports[`typeSearch query snapshots for simple queryParams queryParams={"_id":"11111111-1111-1111-1111-111111111111"} 1`] = `
+exports[`typeSearch query snapshots for no queryParams, ACTIVE filter & changing filters filterParams=[{"key":"_reference","logicalOperator":"OR","comparisonOperator":"==","value":["https://gdieqbxycl.execute-api.us-west-2.amazonaws.com/dev/Patient/3bdd8948-5e3b-4411-8f3f-d352a82bb07d","Patient/3bdd8948-5e3b-4411-8f3f-d352a82bb07d"]}] 1`] = `
+Array [
+  Array [
+    Object {
+      "body": Object {
+        "query": Object {
+          "bool": Object {
+            "filter": Array [
+              Object {
+                "match": Object {
+                  "someFieldThatTellsIfTheResourceIsActive": "AVAILABLE",
+                },
+              },
+              Object {
+                "bool": Object {
+                  "should": Array [
+                    Object {
+                      "match": Object {
+                        "_reference": "https://gdieqbxycl.execute-api.us-west-2.amazonaws.com/dev/Patient/3bdd8948-5e3b-4411-8f3f-d352a82bb07d",
+                      },
+                    },
+                    Object {
+                      "match": Object {
+                        "_reference": "Patient/3bdd8948-5e3b-4411-8f3f-d352a82bb07d",
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            "must": Array [],
+          },
+        },
+      },
+      "from": 0,
+      "index": "patient",
+      "size": 20,
+    },
+  ],
+]
+`;
+
+exports[`typeSearch query snapshots for no queryParams, ACTIVE filter & changing filters filterParams=[{"key":"_reference","logicalOperator":"OR","comparisonOperator":"==","value":["https://gdieqbxycl.execute-api.us-west-2.amazonaws.com/dev/Patient/3bdd8948-5e3b-4411-8f3f-d352a82bb07d"]},{"key":"id","logicalOperator":"OR","comparisonOperator":"==","value":["3bdd8948-5e3b-4411-8f3f-d352a82bb07d"]},{"key":"gender","logicalOperator":"AND","comparisonOperator":"==","value":["male","female"]}] 1`] = `
+Array [
+  Array [
+    Object {
+      "body": Object {
+        "query": Object {
+          "bool": Object {
+            "filter": Array [
+              Object {
+                "match": Object {
+                  "someFieldThatTellsIfTheResourceIsActive": "AVAILABLE",
+                },
+              },
+              Object {
+                "bool": Object {
+                  "should": Array [
+                    Object {
+                      "match": Object {
+                        "gender": "male",
+                      },
+                    },
+                    Object {
+                      "match": Object {
+                        "gender": "female",
+                      },
+                    },
+                  ],
+                },
+              },
+              Object {
+                "bool": Object {
+                  "should": Array [
+                    Object {
+                      "match": Object {
+                        "_reference": "https://gdieqbxycl.execute-api.us-west-2.amazonaws.com/dev/Patient/3bdd8948-5e3b-4411-8f3f-d352a82bb07d",
+                      },
+                    },
+                    Object {
+                      "match": Object {
+                        "id": "3bdd8948-5e3b-4411-8f3f-d352a82bb07d",
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            "must": Array [],
+          },
+        },
+      },
+      "from": 0,
+      "index": "patient",
+      "size": 20,
+    },
+  ],
+]
+`;
+
+exports[`typeSearch query snapshots for simple queryParams; with ACTIVE filter queryParams={"_count":10,"_getpagesoffset":2,"_id":"11111111-1111-1111-1111-111111111111","gender":"female","name":"Emily","_format":"json"} 1`] = `
 Array [
   Array [
     Object {
@@ -1405,8 +1419,116 @@ Array [
             ],
             "must": Array [
               Object {
-                "query_string": Object {
-                  "default_operator": "AND",
+                "multi_match": Object {
+                  "fields": Array [
+                    "id",
+                    "id.*",
+                  ],
+                  "lenient": true,
+                  "query": "11111111-1111-1111-1111-111111111111",
+                },
+              },
+              Object {
+                "multi_match": Object {
+                  "fields": Array [
+                    "gender",
+                    "gender.*",
+                  ],
+                  "lenient": true,
+                  "query": "female",
+                },
+              },
+              Object {
+                "multi_match": Object {
+                  "fields": Array [
+                    "name",
+                    "name.*",
+                  ],
+                  "lenient": true,
+                  "query": "Emily",
+                },
+              },
+            ],
+          },
+        },
+      },
+      "from": 2,
+      "index": "patient",
+      "size": 10,
+    },
+  ],
+]
+`;
+
+exports[`typeSearch query snapshots for simple queryParams; with ACTIVE filter queryParams={"_count":10,"_getpagesoffset":2} 1`] = `
+Array [
+  Array [
+    Object {
+      "body": Object {
+        "query": Object {
+          "bool": Object {
+            "filter": Array [
+              Object {
+                "match": Object {
+                  "someFieldThatTellsIfTheResourceIsActive": "AVAILABLE",
+                },
+              },
+            ],
+            "must": Array [],
+          },
+        },
+      },
+      "from": 2,
+      "index": "patient",
+      "size": 10,
+    },
+  ],
+]
+`;
+
+exports[`typeSearch query snapshots for simple queryParams; with ACTIVE filter queryParams={"_format":"json"} 1`] = `
+Array [
+  Array [
+    Object {
+      "body": Object {
+        "query": Object {
+          "bool": Object {
+            "filter": Array [
+              Object {
+                "match": Object {
+                  "someFieldThatTellsIfTheResourceIsActive": "AVAILABLE",
+                },
+              },
+            ],
+            "must": Array [],
+          },
+        },
+      },
+      "from": 0,
+      "index": "patient",
+      "size": 20,
+    },
+  ],
+]
+`;
+
+exports[`typeSearch query snapshots for simple queryParams; with ACTIVE filter queryParams={"_id":"11111111-1111-1111-1111-111111111111"} 1`] = `
+Array [
+  Array [
+    Object {
+      "body": Object {
+        "query": Object {
+          "bool": Object {
+            "filter": Array [
+              Object {
+                "match": Object {
+                  "someFieldThatTellsIfTheResourceIsActive": "AVAILABLE",
+                },
+              },
+            ],
+            "must": Array [
+              Object {
+                "multi_match": Object {
                   "fields": Array [
                     "id",
                     "id.*",
@@ -1427,7 +1549,7 @@ Array [
 ]
 `;
 
-exports[`typeSearch query snapshots for simple queryParams queryParams={"gender":"female","name":"Emily"} 1`] = `
+exports[`typeSearch query snapshots for simple queryParams; with ACTIVE filter queryParams={"gender":"female","name":"Emily"} 1`] = `
 Array [
   Array [
     Object {
@@ -1443,8 +1565,7 @@ Array [
             ],
             "must": Array [
               Object {
-                "query_string": Object {
-                  "default_operator": "AND",
+                "multi_match": Object {
                   "fields": Array [
                     "gender",
                     "gender.*",
@@ -1454,8 +1575,7 @@ Array [
                 },
               },
               Object {
-                "query_string": Object {
-                  "default_operator": "AND",
+                "multi_match": Object {
                   "fields": Array [
                     "name",
                     "name.*",
@@ -1476,7 +1596,7 @@ Array [
 ]
 `;
 
-exports[`typeSearch query snapshots for simple queryParams queryParams={} 1`] = `
+exports[`typeSearch query snapshots for simple queryParams; with ACTIVE filter queryParams={} 1`] = `
 Array [
   Array [
     Object {
@@ -1490,6 +1610,77 @@ Array [
                 },
               },
             ],
+            "must": Array [],
+          },
+        },
+      },
+      "from": 0,
+      "index": "patient",
+      "size": 20,
+    },
+  ],
+]
+`;
+
+exports[`typeSearch query snapshots for simple queryParams; without ACTIVE filter queryParams={"_count":10,"_getpagesoffset":2,"_id":"11111111-1111-1111-1111-111111111111","gender":"female","name":"Emily","_format":"json"} 1`] = `
+Array [
+  Array [
+    Object {
+      "body": Object {
+        "query": Object {
+          "bool": Object {
+            "filter": Array [],
+            "must": Array [
+              Object {
+                "multi_match": Object {
+                  "fields": Array [
+                    "id",
+                    "id.*",
+                  ],
+                  "lenient": true,
+                  "query": "11111111-1111-1111-1111-111111111111",
+                },
+              },
+              Object {
+                "multi_match": Object {
+                  "fields": Array [
+                    "gender",
+                    "gender.*",
+                  ],
+                  "lenient": true,
+                  "query": "female",
+                },
+              },
+              Object {
+                "multi_match": Object {
+                  "fields": Array [
+                    "name",
+                    "name.*",
+                  ],
+                  "lenient": true,
+                  "query": "Emily",
+                },
+              },
+            ],
+          },
+        },
+      },
+      "from": 2,
+      "index": "patient",
+      "size": 10,
+    },
+  ],
+]
+`;
+
+exports[`typeSearch query snapshots for simple queryParams; without ACTIVE filter queryParams={} 1`] = `
+Array [
+  Array [
+    Object {
+      "body": Object {
+        "query": Object {
+          "bool": Object {
+            "filter": Array [],
             "must": Array [],
           },
         },
@@ -1521,8 +1712,7 @@ Array [
                 "bool": Object {
                   "must": Array [
                     Object {
-                      "query_string": Object {
-                        "default_operator": "AND",
+                      "multi_match": Object {
                         "fields": Array [
                           "relatedArtifact.resource",
                           "relatedArtifact.resource.*",
@@ -1532,7 +1722,7 @@ Array [
                       },
                     },
                     Object {
-                      "query_string": Object {
+                      "multi_match": Object {
                         "fields": Array [
                           "relatedArtifact.type",
                           "relatedArtifact.type.*",
@@ -1575,8 +1765,7 @@ Array [
                 "bool": Object {
                   "must": Array [
                     Object {
-                      "query_string": Object {
-                        "default_operator": "AND",
+                      "multi_match": Object {
                         "fields": Array [
                           "telecom",
                           "telecom.*",
@@ -1586,7 +1775,7 @@ Array [
                       },
                     },
                     Object {
-                      "query_string": Object {
+                      "multi_match": Object {
                         "fields": Array [
                           "telecom.system",
                           "telecom.system.*",
@@ -1629,8 +1818,7 @@ Array [
                 "bool": Object {
                   "must": Array [
                     Object {
-                      "query_string": Object {
-                        "default_operator": "AND",
+                      "multi_match": Object {
                         "fields": Array [
                           "link.target",
                           "link.target.*",
@@ -1640,7 +1828,7 @@ Array [
                       },
                     },
                     Object {
-                      "query_string": Object {
+                      "multi_match": Object {
                         "fields": Array [
                           "link.target",
                           "link.target.*",
@@ -1683,8 +1871,7 @@ Array [
                 "bool": Object {
                   "should": Array [
                     Object {
-                      "query_string": Object {
-                        "default_operator": "AND",
+                      "multi_match": Object {
                         "fields": Array [
                           "valueString",
                           "valueString.*",
@@ -1694,11 +1881,110 @@ Array [
                       },
                     },
                     Object {
-                      "query_string": Object {
-                        "default_operator": "AND",
+                      "multi_match": Object {
                         "fields": Array [
                           "valueCodeableConcept.text",
                           "valueCodeableConcept.text.*",
+                        ],
+                        "lenient": true,
+                        "query": "some value",
+                      },
+                    },
+                    Object {
+                      "multi_match": Object {
+                        "fields": Array [
+                          "valueQuantity",
+                          "valueQuantity.*",
+                        ],
+                        "lenient": true,
+                        "query": "some value",
+                      },
+                    },
+                    Object {
+                      "multi_match": Object {
+                        "fields": Array [
+                          "valueCodeableConcept",
+                          "valueCodeableConcept.*",
+                        ],
+                        "lenient": true,
+                        "query": "some value",
+                      },
+                    },
+                    Object {
+                      "multi_match": Object {
+                        "fields": Array [
+                          "valueBoolean",
+                          "valueBoolean.*",
+                        ],
+                        "lenient": true,
+                        "query": "some value",
+                      },
+                    },
+                    Object {
+                      "multi_match": Object {
+                        "fields": Array [
+                          "valueInteger",
+                          "valueInteger.*",
+                        ],
+                        "lenient": true,
+                        "query": "some value",
+                      },
+                    },
+                    Object {
+                      "multi_match": Object {
+                        "fields": Array [
+                          "valueRange",
+                          "valueRange.*",
+                        ],
+                        "lenient": true,
+                        "query": "some value",
+                      },
+                    },
+                    Object {
+                      "multi_match": Object {
+                        "fields": Array [
+                          "valueRatio",
+                          "valueRatio.*",
+                        ],
+                        "lenient": true,
+                        "query": "some value",
+                      },
+                    },
+                    Object {
+                      "multi_match": Object {
+                        "fields": Array [
+                          "valueSampledData",
+                          "valueSampledData.*",
+                        ],
+                        "lenient": true,
+                        "query": "some value",
+                      },
+                    },
+                    Object {
+                      "multi_match": Object {
+                        "fields": Array [
+                          "valueTime",
+                          "valueTime.*",
+                        ],
+                        "lenient": true,
+                        "query": "some value",
+                      },
+                    },
+                    Object {
+                      "multi_match": Object {
+                        "fields": Array [
+                          "valueDateTime",
+                          "valueDateTime.*",
+                        ],
+                        "lenient": true,
+                        "query": "some value",
+                      },
+                    },
+                    Object {
+                      "multi_match": Object {
+                        "fields": Array [
+                          "valuePeriod",
+                          "valuePeriod.*",
                         ],
                         "lenient": true,
                         "query": "some value",
