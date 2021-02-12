@@ -7,6 +7,7 @@
 import URL from 'url';
 
 import { ResponseError } from '@elastic/elasticsearch/lib/errors';
+import { partition } from 'lodash';
 import {
     Search,
     TypeSearchRequest,
@@ -94,7 +95,7 @@ export class ElasticSearchService implements Search {
             // Exp. {gender: 'male', name: 'john'}
             const searchParameterToValue = { ...queryParams };
 
-            const must: any = [];
+            const must: any[] = [];
             // TODO Implement fuzzy matches
             Object.entries(searchParameterToValue).forEach(([searchParameter, searchValue]) => {
                 if (NON_SEARCHABLE_PARAMETERS.includes(searchParameter)) {
@@ -115,10 +116,9 @@ export class ElasticSearchService implements Search {
                     const fields = [compiled.path, `${compiled.path}.*`];
 
                     const pathQuery = {
-                        query_string: {
+                        multi_match: {
                             fields,
                             query: value,
-                            default_operator: 'AND',
                             lenient: true,
                         },
                     };
@@ -134,7 +134,7 @@ export class ElasticSearchService implements Search {
                                 must: [
                                     pathQuery,
                                     {
-                                        query_string: {
+                                        multi_match: {
                                             fields: [compiled.condition[0], `${compiled.condition[0]}.*`],
                                             query: compiled.condition[2],
                                             lenient: true,
@@ -158,7 +158,7 @@ export class ElasticSearchService implements Search {
                 }
             });
 
-            const filter: SearchFilter[] = ElasticSearchService.buildElasticSearchFilter([
+            const filter: any[] = ElasticSearchService.buildElasticSearchFilter([
                 ...this.searchFiltersForAllQueries,
                 ...(searchFilters ?? []),
             ]);
@@ -309,7 +309,7 @@ export class ElasticSearchService implements Search {
         iterative?: true,
     ): Promise<SearchEntry[]> {
         const { queryParams, searchFilters, allowedResourceTypes, baseUrl } = request;
-        const filter: SearchFilter[] = ElasticSearchService.buildElasticSearchFilter([
+        const filter: any[] = ElasticSearchService.buildElasticSearchFilter([
             ...this.searchFiltersForAllQueries,
             ...(searchFilters ?? []),
         ]);
@@ -330,7 +330,7 @@ export class ElasticSearchService implements Search {
             iterative,
         );
 
-        const lowerCaseAllowedResourceTypes = new Set(allowedResourceTypes.map(r => r.toLowerCase()));
+        const lowerCaseAllowedResourceTypes = new Set(allowedResourceTypes.map((r: string) => r.toLowerCase()));
         const allowedInclusionQueries = [...includeSearchQueries, ...revIncludeSearchQueries].filter(query =>
             lowerCaseAllowedResourceTypes.has(query.index),
         );
@@ -404,7 +404,7 @@ export class ElasticSearchService implements Search {
         throw new Error('Method not implemented.');
     }
 
-    private static buildElasticSearchFilterPart(
+    private static buildSingleElasticSearchFilterPart(
         key: string,
         value: string,
         operator: '==' | '!=' | '>' | '<' | '>=' | '<=',
@@ -472,25 +472,49 @@ export class ElasticSearchService implements Search {
         }
     }
 
-    private static buildElasticSearchFilter(searchFilters: SearchFilter[]): any {
-        return searchFilters.map((searchFilter: SearchFilter) => {
-            const { key, value, comparisonOperator, logicalOperator } = searchFilter;
+    private static buildElasticSearchFilterPart(searchFilter: SearchFilter): any {
+        const { key, value, comparisonOperator, logicalOperator } = searchFilter;
 
-            if (value.length === 0) {
-                throw new Error('Malformed SearchFilter, at least 1 value is required for the comparison');
-            } else if (value.length === 1) {
-                return this.buildElasticSearchFilterPart(key, value[0], comparisonOperator);
-            } else {
-                const esLogicalOperator = logicalOperator === 'OR' ? 'should' : 'filter';
-                const esQueries = value.map((v: string) => {
-                    return this.buildElasticSearchFilterPart(key, v, comparisonOperator);
-                });
-                return {
-                    bool: {
-                        [esLogicalOperator]: esQueries,
-                    },
-                };
-            }
+        if (value.length === 0) {
+            throw new Error('Malformed SearchFilter, at least 1 value is required for the comparison');
+        }
+        const parts: any[] = value.map((v: string) => {
+            return ElasticSearchService.buildSingleElasticSearchFilterPart(key, v, comparisonOperator);
         });
+
+        if (logicalOperator === 'AND' && parts.length > 1) {
+            return {
+                bool: {
+                    should: parts,
+                },
+            };
+        }
+
+        return parts;
+    }
+
+    /**
+     * ES filter is created where all 'AND' filters are required and at least 1 'OR' condition is met
+     * @returns the `filter` part of the ES query
+     */
+    private static buildElasticSearchFilter(searchFilters: SearchFilter[]): any[] {
+        const partitions: SearchFilter[][] = partition(searchFilters, filter => {
+            return filter.logicalOperator === 'OR';
+        });
+        const orSearchFilterParts: any[] = partitions[0].map(ElasticSearchService.buildElasticSearchFilterPart).flat();
+        const andSearchFilterParts: any[] = partitions[1].map(ElasticSearchService.buildElasticSearchFilterPart).flat();
+        let filterQuery: any[] = [];
+        if (andSearchFilterParts.length > 0) {
+            filterQuery = andSearchFilterParts;
+        }
+        if (orSearchFilterParts.length > 0) {
+            filterQuery.push({
+                bool: {
+                    should: orSearchFilterParts,
+                },
+            });
+        }
+
+        return filterQuery;
     }
 }

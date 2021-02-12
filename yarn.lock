@@ -627,6 +627,11 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.161.tgz#a21ca0777dabc6e4f44f3d07f37b765f54188b18"
   integrity sha512-EP6O3Jkr7bXvZZSZYlsgt5DIjiGr0dXP1/jVEwVLTFgg0d+3lWVQkRavYVQszV7dYUwvg0B8R0MBDpcmXg7XIA==
 
+"@types/nearley@^2.11.1":
+  version "2.11.1"
+  resolved "https://registry.yarnpkg.com/@types/nearley/-/nearley-2.11.1.tgz#6ac3f57c00ca28071a1774ec72d2e45750f21420"
+  integrity sha512-oaAg5gn74VFpPYs6Ou2pjDao3WJxnlnH29q9rLOxSGb0PTw2QtBQcTAN9xs1OAHrtI9En5kIXKM96stf7//c9w==
+
 "@types/node@*":
   version "14.0.25"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.0.25.tgz#7ad8b00a1206d6c9e94810e49f3115f0bcc30456"
@@ -1895,10 +1900,10 @@ fb-watchman@^2.0.0:
   dependencies:
     bser "2.1.1"
 
-fhir-works-on-aws-interface@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/fhir-works-on-aws-interface/-/fhir-works-on-aws-interface-7.0.0.tgz#2cd4ffb20b42dc3d4ec9a98d90437052841ec6d6"
-  integrity sha512-drZNzZ1zdRgGxOQFdGrEAHJwt77MnyrUw6jQCO9yoX7WBhdLOP0+K1E/4GTnn+AulB7/IJa9bPAKHm5PpybB7Q==
+fhir-works-on-aws-interface@^7.1.0:
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/fhir-works-on-aws-interface/-/fhir-works-on-aws-interface-7.1.0.tgz#74ec69861b9909b9d14925085a901162def8ad6c"
+  integrity sha512-0Tz0ZXycp3vnKSyjnPO94rKJ7Qtz4JWLy83HpB1+qdGaAxzGaMVyW7w3vC3fkPmqOIPKxVl96pU/tXS7/Q9J8g==
 
 figures@^3.0.0:
   version "3.2.0"
