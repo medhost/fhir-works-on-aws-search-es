@@ -179,7 +179,12 @@ export class ElasticSearchService implements Search {
             const { total, hits } = await this.executeQuery(params);
             const result: SearchResult = {
                 numberOfResults: total,
-                entries: this.hitsToSearchEntries({ hits, baseUrl: request.baseUrl, mode: 'match' }),
+                entries: this.hitsToSearchEntries({
+                    hits,
+                    baseUrl: request.baseUrl,
+                    tenantId: request.tenantId,
+                    mode: 'match',
+                }),
                 message: '',
             };
 
@@ -191,6 +196,7 @@ export class ElasticSearchService implements Search {
                         [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: from - size,
                         [SEARCH_PAGINATION_PARAMS.COUNT]: size,
                     },
+                    tenantId,
                     resourceType,
                 );
             }
@@ -202,6 +208,7 @@ export class ElasticSearchService implements Search {
                         [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: from + size,
                         [SEARCH_PAGINATION_PARAMS.COUNT]: size,
                     },
+                    tenantId,
                     resourceType,
                 );
             }
@@ -279,23 +286,27 @@ export class ElasticSearchService implements Search {
     private hitsToSearchEntries({
         hits,
         baseUrl,
+        tenantId,
         mode = 'match',
     }: {
         hits: any[];
         baseUrl: string;
+        tenantId: string;
         mode: 'match' | 'include';
     }): SearchEntry[] {
         return hits.map(
             (hit: any): SearchEntry => {
                 // Modify to return resource with FHIR id not Dynamo ID
                 const resource = this.cleanUpFunction(hit._source);
+                const tenantPath = tenantId ? `/tenant/${tenantId}` : '';
+
                 return {
                     search: {
                         mode,
                     },
                     fullUrl: URL.format({
                         host: baseUrl,
-                        pathname: `/${resource.resourceType}/${resource.id}`,
+                        pathname: `${tenantPath}/${resource.resourceType}/${resource.id}`,
                     }),
                     resource,
                 };
@@ -308,7 +319,7 @@ export class ElasticSearchService implements Search {
         request: TypeSearchRequest,
         iterative?: true,
     ): Promise<SearchEntry[]> {
-        const { queryParams, searchFilters, allowedResourceTypes, baseUrl } = request;
+        const { queryParams, searchFilters, allowedResourceTypes, baseUrl, tenantId } = request;
         const filter: any[] = ElasticSearchService.buildElasticSearchFilter([
             ...this.searchFiltersForAllQueries,
             ...(searchFilters ?? []),
@@ -336,7 +347,7 @@ export class ElasticSearchService implements Search {
         );
 
         const { hits } = await this.executeQueries(allowedInclusionQueries);
-        return this.hitsToSearchEntries({ hits, baseUrl, mode: 'include' });
+        return this.hitsToSearchEntries({ hits, baseUrl, tenantId, mode: 'include' });
     }
 
     private async processIterativeSearchInclusions(
@@ -390,10 +401,11 @@ export class ElasticSearchService implements Search {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    private createURL(host: string, query: any, resourceType?: string) {
+    private createURL(host: string, query: any, tenantId: string, resourceType?: string) {
+        const tenantUrlFragment = tenantId ? `/tenant/${tenantId}` : '';
         return URL.format({
             host,
-            pathname: `/${resourceType}`,
+            pathname: `${tenantUrlFragment}/${resourceType}`,
             query,
         });
     }
