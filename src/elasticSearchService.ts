@@ -136,7 +136,7 @@ export class ElasticSearchService implements Search {
                                     {
                                         multi_match: {
                                             fields: [compiled.condition[0], `${compiled.condition[0]}.*`],
-                                            query: compiled.condition[2],
+                                            query: value,
                                             lenient: true,
                                         },
                                     },
