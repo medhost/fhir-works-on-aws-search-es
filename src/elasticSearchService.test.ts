@@ -86,6 +86,7 @@ describe('typeSearch', () => {
                 baseUrl: 'https://base-url.com',
                 queryParams,
                 allowedResourceTypes: ALLOWED_RESOURCE_TYPES,
+                tenantId: 'tenant1',
             });
 
             expect((ElasticSearch.search as jest.Mock).mock.calls).toMatchSnapshot();
@@ -136,6 +137,7 @@ describe('typeSearch', () => {
                 baseUrl: 'https://base-url.com',
                 queryParams,
                 allowedResourceTypes: ALLOWED_RESOURCE_TYPES,
+                tenantId: 'tenant1',
             });
 
             expect((ElasticSearch.search as jest.Mock).mock.calls).toMatchSnapshot();
@@ -212,6 +214,7 @@ describe('typeSearch', () => {
                 queryParams: {},
                 allowedResourceTypes: ALLOWED_RESOURCE_TYPES,
                 searchFilters,
+                tenantId: 'tenant1',
             });
 
             expect((ElasticSearch.search as jest.Mock).mock.calls).toMatchSnapshot();
@@ -256,6 +259,7 @@ describe('typeSearch', () => {
                 baseUrl: 'https://base-url.com',
                 queryParams,
                 allowedResourceTypes: ALLOWED_RESOURCE_TYPES,
+                tenantId: 'tenant1',
             });
 
             expect((ElasticSearch.search as jest.Mock).mock.calls).toMatchSnapshot();
@@ -270,6 +274,7 @@ describe('typeSearch', () => {
                 baseUrl: 'https://base-url.com',
                 queryParams: { someFieldThatDoesNotExist: 'someValue' },
                 allowedResourceTypes: ALLOWED_RESOURCE_TYPES,
+                tenantId: 'tenant1',
             }),
         ).rejects.toThrowError(InvalidSearchParameterError);
     });
@@ -310,6 +315,7 @@ describe('typeSearch', () => {
             baseUrl: 'https://base-url.com',
             queryParams: {},
             allowedResourceTypes: ALLOWED_RESOURCE_TYPES,
+            tenantId: 'tenant1',
         });
         expect(result).toMatchSnapshot();
     });
@@ -393,6 +399,7 @@ describe('typeSearch', () => {
                 baseUrl: 'https://base-url.com',
                 queryParams: { ...queryParams },
                 allowedResourceTypes: ALLOWED_RESOURCE_TYPES,
+                tenantId: 'tenant1',
             });
 
             expect((ElasticSearch.search as jest.Mock).mock.calls).toMatchSnapshot('search queries');
@@ -409,6 +416,7 @@ describe('typeSearch', () => {
                 baseUrl: 'https://base-url.com',
                 queryParams: { _include: '*' },
                 allowedResourceTypes: ['MedicationRequest'],
+                tenantId: 'tenant1',
             });
 
             expect((ElasticSearch.search as jest.Mock).mock.calls).toMatchSnapshot('search queries');
@@ -434,6 +442,7 @@ describe('typeSearch', () => {
                 baseUrl: 'https://base-url.com',
                 queryParams: { ...queryParams },
                 allowedResourceTypes: ALLOWED_RESOURCE_TYPES,
+                tenantId: 'tenant1',
             });
 
             expect((ElasticSearch.search as jest.Mock).mock.calls).toMatchSnapshot('search queries');
@@ -503,6 +512,7 @@ describe('typeSearch', () => {
             baseUrl: 'https://base-url.com',
             queryParams: { ...queryParams },
             allowedResourceTypes: ALLOWED_RESOURCE_TYPES,
+            tenantId: 'tenant1',
         });
 
         expect((ElasticSearch.search as jest.Mock).mock.calls).toMatchSnapshot('search queries');
@@ -566,6 +576,7 @@ describe('typeSearch', () => {
             baseUrl: 'https://base-url.com',
             queryParams: { ...queryParams },
             allowedResourceTypes: ALLOWED_RESOURCE_TYPES,
+            tenantId: 'tenant1',
         });
 
         expect((ElasticSearch.search as jest.Mock).mock.calls).toMatchSnapshot('search queries');
@@ -694,6 +705,7 @@ describe('typeSearch', () => {
                 baseUrl: 'https://base-url.com',
                 queryParams: {},
                 allowedResourceTypes: ALLOWED_RESOURCE_TYPES,
+                tenantId: 'tenant1',
             });
 
             expect((ElasticSearch.search as jest.Mock).mock.calls).toMatchSnapshot();
