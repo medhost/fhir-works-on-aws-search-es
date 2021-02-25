@@ -37,10 +37,6 @@ const NON_SEARCHABLE_PARAMETERS = [
 
 const MAX_INCLUDE_ITERATIVE_DEPTH = 5;
 
-const escapeQueryString = (string: string) => {
-    return string.replace(/\//g, '\\/');
-};
-
 // eslint-disable-next-line import/prefer-default-export
 export class ElasticSearchService implements Search {
     private readonly searchFiltersForAllQueries: SearchFilter[];
@@ -101,7 +97,6 @@ export class ElasticSearchService implements Search {
                 if (NON_SEARCHABLE_PARAMETERS.includes(searchParameter)) {
                     return;
                 }
-                const value = escapeQueryString(searchValue as string);
                 const fhirSearchParam = this.fhirSearchParametersRegistry.getSearchParameter(
                     resourceType,
                     searchParameter,
@@ -118,8 +113,9 @@ export class ElasticSearchService implements Search {
                     const pathQuery = {
                         multi_match: {
                             fields,
-                            query: value,
+                            query: searchValue,
                             lenient: true,
+                            analyzer: 'keyword',
                         },
                     };
 
@@ -136,7 +132,7 @@ export class ElasticSearchService implements Search {
                                     {
                                         multi_match: {
                                             fields: [compiled.condition[0], `${compiled.condition[0]}.*`],
-                                            query: value,
+                                            query: compiled.condition[2],
                                             lenient: true,
                                         },
                                     },
