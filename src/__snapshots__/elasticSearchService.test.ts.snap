@@ -1718,30 +1718,14 @@ Array [
             ],
             "must": Array [
               Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "multi_match": Object {
-                        "analyzer": "keyword",
-                        "fields": Array [
-                          "relatedArtifact.resource",
-                          "relatedArtifact.resource.*",
-                        ],
-                        "lenient": true,
-                        "query": "something",
-                      },
-                    },
-                    Object {
-                      "multi_match": Object {
-                        "fields": Array [
-                          "relatedArtifact.type",
-                          "relatedArtifact.type.*",
-                        ],
-                        "lenient": true,
-                        "query": "depends-on",
-                      },
-                    },
+                "multi_match": Object {
+                  "analyzer": "keyword",
+                  "fields": Array [
+                    "relatedArtifact.resource",
+                    "relatedArtifact.resource.*",
                   ],
+                  "lenient": true,
+                  "query": "something",
                 },
               },
             ],
@@ -1772,30 +1756,14 @@ Array [
             ],
             "must": Array [
               Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "multi_match": Object {
-                        "analyzer": "keyword",
-                        "fields": Array [
-                          "telecom",
-                          "telecom.*",
-                        ],
-                        "lenient": true,
-                        "query": "1234567",
-                      },
-                    },
-                    Object {
-                      "multi_match": Object {
-                        "fields": Array [
-                          "telecom.system",
-                          "telecom.system.*",
-                        ],
-                        "lenient": true,
-                        "query": "phone",
-                      },
-                    },
+                "multi_match": Object {
+                  "analyzer": "keyword",
+                  "fields": Array [
+                    "telecom",
+                    "telecom.*",
                   ],
+                  "lenient": true,
+                  "query": "1234567",
                 },
               },
             ],
@@ -1826,30 +1794,14 @@ Array [
             ],
             "must": Array [
               Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "multi_match": Object {
-                        "analyzer": "keyword",
-                        "fields": Array [
-                          "link.target",
-                          "link.target.*",
-                        ],
-                        "lenient": true,
-                        "query": "RelatedPerson/111",
-                      },
-                    },
-                    Object {
-                      "multi_match": Object {
-                        "fields": Array [
-                          "link.target",
-                          "link.target.*",
-                        ],
-                        "lenient": true,
-                        "query": "RelatedPerson",
-                      },
-                    },
+                "multi_match": Object {
+                  "analyzer": "keyword",
+                  "fields": Array [
+                    "link.target",
+                    "link.target.*",
                   ],
+                  "lenient": true,
+                  "query": "RelatedPerson/111",
                 },
               },
             ],

@@ -110,7 +110,7 @@ export class ElasticSearchService implements Search {
                 const queries = fhirSearchParam.compiled.map(compiled => {
                     const fields = [compiled.path, `${compiled.path}.*`];
 
-                    const pathQuery = {
+                    return {
                         multi_match: {
                             fields,
                             query: searchValue,
@@ -118,29 +118,6 @@ export class ElasticSearchService implements Search {
                             analyzer: 'keyword',
                         },
                     };
-
-                    // In most cases conditions are used for fields that are an array of objects
-                    // Ideally we should be using a nested query, but that'd require to update the index mappings.
-                    //
-                    // Simply using an array of bool.must is good enough for most cases. The result will contain the correct documents, however it MAY contain additional documents
-                    // https://www.elastic.co/guide/en/elasticsearch/reference/current/nested.html
-                    if (compiled.condition !== undefined) {
-                        return {
-                            bool: {
-                                must: [
-                                    pathQuery,
-                                    {
-                                        multi_match: {
-                                            fields: [compiled.condition[0], `${compiled.condition[0]}.*`],
-                                            query: compiled.condition[2],
-                                            lenient: true,
-                                        },
-                                    },
-                                ],
-                            },
-                        };
-                    }
-                    return pathQuery;
                 });
 
                 if (queries.length === 1) {
