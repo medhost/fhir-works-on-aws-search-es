@@ -51,6 +51,9 @@ import compiledSearchParamsV3 from '../schema/compiledSearchParameters.3.0.1.jso
  *  }
  *
  */
+
+export type CompiledSearchParam = { resourceType: string; path: string; condition?: string[] };
+
 export type SearchParam = {
     name: string;
     url: string;
@@ -58,7 +61,7 @@ export type SearchParam = {
     description: string;
     base: string;
     target?: string[];
-    compiled: { resourceType: string; path: string; condition?: string[] }[];
+    compiled: CompiledSearchParam[];
 };
 
 const toCapabilityStatement = (searchParam: SearchParam) => ({
@@ -89,12 +92,16 @@ export class FHIRSearchParametersRegistry {
 
     private readonly capabilityStatement: SearchCapabilityStatement;
 
-    constructor(fhirVersion: FhirVersion) {
+    constructor(fhirVersion: FhirVersion, compiledImplementationGuides?: any[]) {
         let compiledSearchParams: SearchParam[];
         if (fhirVersion === '4.0.1') {
             compiledSearchParams = compiledSearchParamsV4 as SearchParam[];
         } else {
             compiledSearchParams = compiledSearchParamsV3 as SearchParam[];
+        }
+        if (compiledImplementationGuides !== undefined) {
+            // order is important. params from IGs are added last so that they overwrite base FHIR params with the same name
+            compiledSearchParams = [...compiledSearchParams, ...compiledImplementationGuides];
         }
 
         this.includeMap = {};
