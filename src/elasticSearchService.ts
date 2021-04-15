@@ -17,7 +17,6 @@ import {
     SearchEntry,
     SearchFilter,
     FhirVersion,
-    InvalidSearchParameterError,
 } from 'fhir-works-on-aws-interface';
 import { ElasticSearch } from './elasticSearch';
 import { DEFAULT_SEARCH_RESULTS_PER_PAGE, SEARCH_PAGINATION_PARAMS, ITERATIVE_INCLUSION_PARAMETERS } from './constants';

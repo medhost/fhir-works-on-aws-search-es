@@ -1446,6 +1446,7 @@ Array [
               },
               Object {
                 "multi_match": Object {
+                  "analyzer": "keyword",
                   "fields": Array [
                     "name",
                     "name.*",
@@ -1598,7 +1599,7 @@ Array [
         },
       },
       "from": 0,
-      "index": "patient",
+      "index": "tenant1-patient",
       "size": 20,
     },
   ],
@@ -1667,7 +1668,7 @@ Array [
         },
       },
       "from": 0,
-      "index": "patient",
+      "index": "tenant1-patient",
       "size": 20,
     },
   ],
@@ -1704,6 +1705,7 @@ Array [
               },
               Object {
                 "multi_match": Object {
+                  "analyzer": "keyword",
                   "fields": Array [
                     "name",
                     "name.*",
@@ -1787,6 +1789,7 @@ Array [
               },
               Object {
                 "multi_match": Object {
+                  "analyzer": "keyword",
                   "fields": Array [
                     "name",
                     "name.*",
@@ -1843,29 +1846,14 @@ Array [
             ],
             "must": Array [
               Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "multi_match": Object {
-                        "fields": Array [
-                          "relatedArtifact.resource",
-                          "relatedArtifact.resource.*",
-                        ],
-                        "lenient": true,
-                        "query": "something",
-                      },
-                    },
-                    Object {
-                      "multi_match": Object {
-                        "fields": Array [
-                          "relatedArtifact.type",
-                          "relatedArtifact.type.*",
-                        ],
-                        "lenient": true,
-                        "query": "depends-on",
-                      },
-                    },
+                "multi_match": Object {
+                  "analyzer": "keyword",
+                  "fields": Array [
+                    "relatedArtifact.resource",
+                    "relatedArtifact.resource.*",
                   ],
+                  "lenient": true,
+                  "query": "something",
                 },
               },
             ],
@@ -1896,32 +1884,16 @@ Array [
             ],
             "must": Array [
               Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "multi_match": Object {
-                        "fields": Array [
-                          "telecom.code.keyword",
-                          "telecom.coding.code.keyword",
-                          "telecom.value.keyword",
-                          "telecom.value",
-                          "telecom",
-                        ],
-                        "lenient": true,
-                        "query": "1234567",
-                      },
-                    },
-                    Object {
-                      "multi_match": Object {
-                        "fields": Array [
-                          "telecom.system",
-                          "telecom.system.*",
-                        ],
-                        "lenient": true,
-                        "query": "phone",
-                      },
-                    },
+                "multi_match": Object {
+                  "fields": Array [
+                    "telecom.code.keyword",
+                    "telecom.coding.code.keyword",
+                    "telecom.value.keyword",
+                    "telecom.value",
+                    "telecom",
                   ],
+                  "lenient": true,
+                  "query": "1234567",
                 },
               },
             ],
@@ -1952,29 +1924,14 @@ Array [
             ],
             "must": Array [
               Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "multi_match": Object {
-                        "fields": Array [
-                          "link.target",
-                          "link.target.*",
-                        ],
-                        "lenient": true,
-                        "query": "RelatedPerson\\\\/111",
-                      },
-                    },
-                    Object {
-                      "multi_match": Object {
-                        "fields": Array [
-                          "link.target",
-                          "link.target.*",
-                        ],
-                        "lenient": true,
-                        "query": "RelatedPerson",
-                      },
-                    },
+                "multi_match": Object {
+                  "analyzer": "keyword",
+                  "fields": Array [
+                    "link.target",
+                    "link.target.*",
                   ],
+                  "lenient": true,
+                  "query": "RelatedPerson/111",
                 },
               },
             ],
@@ -2009,6 +1966,7 @@ Array [
                   "should": Array [
                     Object {
                       "multi_match": Object {
+                        "analyzer": "keyword",
                         "fields": Array [
                           "valueString",
                           "valueString.*",
@@ -2019,6 +1977,7 @@ Array [
                     },
                     Object {
                       "multi_match": Object {
+                        "analyzer": "keyword",
                         "fields": Array [
                           "valueCodeableConcept.text",
                           "valueCodeableConcept.text.*",
@@ -2029,6 +1988,7 @@ Array [
                     },
                     Object {
                       "multi_match": Object {
+                        "analyzer": "keyword",
                         "fields": Array [
                           "valueQuantity",
                           "valueQuantity.*",
@@ -2039,6 +1999,7 @@ Array [
                     },
                     Object {
                       "multi_match": Object {
+                        "analyzer": "keyword",
                         "fields": Array [
                           "valueCodeableConcept",
                           "valueCodeableConcept.*",
@@ -2049,6 +2010,7 @@ Array [
                     },
                     Object {
                       "multi_match": Object {
+                        "analyzer": "keyword",
                         "fields": Array [
                           "valueBoolean",
                           "valueBoolean.*",
@@ -2059,6 +2021,7 @@ Array [
                     },
                     Object {
                       "multi_match": Object {
+                        "analyzer": "keyword",
                         "fields": Array [
                           "valueInteger",
                           "valueInteger.*",
@@ -2069,6 +2032,7 @@ Array [
                     },
                     Object {
                       "multi_match": Object {
+                        "analyzer": "keyword",
                         "fields": Array [
                           "valueRange",
                           "valueRange.*",
@@ -2079,6 +2043,7 @@ Array [
                     },
                     Object {
                       "multi_match": Object {
+                        "analyzer": "keyword",
                         "fields": Array [
                           "valueRatio",
                           "valueRatio.*",
@@ -2089,6 +2054,7 @@ Array [
                     },
                     Object {
                       "multi_match": Object {
+                        "analyzer": "keyword",
                         "fields": Array [
                           "valueSampledData",
                           "valueSampledData.*",
@@ -2099,6 +2065,7 @@ Array [
                     },
                     Object {
                       "multi_match": Object {
+                        "analyzer": "keyword",
                         "fields": Array [
                           "valueTime",
                           "valueTime.*",
@@ -2109,6 +2076,7 @@ Array [
                     },
                     Object {
                       "multi_match": Object {
+                        "analyzer": "keyword",
                         "fields": Array [
                           "valueDateTime",
                           "valueDateTime.*",
@@ -2119,6 +2087,7 @@ Array [
                     },
                     Object {
                       "multi_match": Object {
+                        "analyzer": "keyword",
                         "fields": Array [
                           "valuePeriod",
                           "valuePeriod.*",

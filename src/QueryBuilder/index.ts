@@ -35,27 +35,6 @@ function typeQueryWithConditions(
         default:
             typeQuery = stringQuery(compiledSearchParam, searchValue);
     }
-    // In most cases conditions are used for fields that are an array of objects
-    // Ideally we should be using a nested query, but that'd require to update the index mappings.
-    //
-    // Simply using an array of bool.must is good enough for most cases. The result will contain the correct documents, however it MAY contain additional documents
-    // https://www.elastic.co/guide/en/elasticsearch/reference/current/nested.html
-    if (compiledSearchParam.condition !== undefined) {
-        return {
-            bool: {
-                must: [
-                    typeQuery,
-                    {
-                        multi_match: {
-                            fields: [compiledSearchParam.condition[0], `${compiledSearchParam.condition[0]}.*`],
-                            query: compiledSearchParam.condition[2],
-                            lenient: true,
-                        },
-                    },
-                ],
-            },
-        };
-    }
     return typeQuery;
 }
 
