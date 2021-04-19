@@ -17,23 +17,12 @@ import {
     SearchEntry,
     SearchFilter,
     FhirVersion,
-    InvalidSearchParameterError,
 } from 'fhir-works-on-aws-interface';
 import { ElasticSearch } from './elasticSearch';
-import { DEFAULT_SEARCH_RESULTS_PER_PAGE, SEARCH_PAGINATION_PARAMS } from './constants';
+import { DEFAULT_SEARCH_RESULTS_PER_PAGE, SEARCH_PAGINATION_PARAMS, ITERATIVE_INCLUSION_PARAMETERS } from './constants';
 import { buildIncludeQueries, buildRevIncludeQueries } from './searchInclusions';
 import { FHIRSearchParametersRegistry } from './FHIRSearchParametersRegistry';
-
-const ITERATIVE_INCLUSION_PARAMETERS = ['_include:iterate', '_revinclude:iterate'];
-
-const NON_SEARCHABLE_PARAMETERS = [
-    SEARCH_PAGINATION_PARAMS.PAGES_OFFSET,
-    SEARCH_PAGINATION_PARAMS.COUNT,
-    '_format',
-    '_include',
-    '_revinclude',
-    ...ITERATIVE_INCLUSION_PARAMETERS,
-];
+import { buildQueryForAllSearchParameters } from './QueryBuilder';
 
 const MAX_INCLUDE_ITERATIVE_DEPTH = 5;
 
@@ -54,6 +43,8 @@ export class ElasticSearchService implements Search {
      * @param cleanUpFunction - If you are storing non-fhir related parameters pass this function to clean
      * the return ES objects
      * @param fhirVersion
+     * @param compiledImplementationGuides - The output of ImplementationGuides.compile.
+     * This parameter enables support for search parameters defined in Implementation Guides.
      */
     constructor(
         searchFiltersForAllQueries: SearchFilter[] = [],
@@ -61,11 +52,12 @@ export class ElasticSearchService implements Search {
             return resource;
         },
         fhirVersion: FhirVersion = '4.0.1',
+        compiledImplementationGuides?: any,
     ) {
         this.searchFiltersForAllQueries = searchFiltersForAllQueries;
         this.cleanUpFunction = cleanUpFunction;
         this.fhirVersion = fhirVersion;
-        this.fhirSearchParametersRegistry = new FHIRSearchParametersRegistry(fhirVersion);
+        this.fhirSearchParametersRegistry = new FHIRSearchParametersRegistry(fhirVersion, compiledImplementationGuides);
     }
 
     async getCapabilities() {
@@ -86,67 +78,21 @@ export class ElasticSearchService implements Search {
                 ? Number(queryParams[SEARCH_PAGINATION_PARAMS.COUNT])
                 : DEFAULT_SEARCH_RESULTS_PER_PAGE;
 
-            const indexForES = tenantId ? `${tenantId}-${resourceType}` : resourceType;
-
-            // Exp. {gender: 'male', name: 'john'}
-            const searchParameterToValue = { ...queryParams };
-
-            const must: any[] = [];
-            // TODO Implement fuzzy matches
-            Object.entries(searchParameterToValue).forEach(([searchParameter, searchValue]) => {
-                if (NON_SEARCHABLE_PARAMETERS.includes(searchParameter)) {
-                    return;
-                }
-                const fhirSearchParam = this.fhirSearchParametersRegistry.getSearchParameter(
-                    resourceType,
-                    searchParameter,
-                );
-                if (fhirSearchParam === undefined) {
-                    throw new InvalidSearchParameterError(
-                        `Invalid search parameter '${searchParameter}' for resource type ${resourceType}`,
-                    );
-                }
-
-                const queries = fhirSearchParam.compiled.map(compiled => {
-                    const fields = [compiled.path, `${compiled.path}.*`];
-
-                    return {
-                        multi_match: {
-                            fields,
-                            query: searchValue,
-                            lenient: true,
-                            analyzer: 'keyword',
-                        },
-                    };
-                });
-
-                if (queries.length === 1) {
-                    must.push(queries[0]);
-                } else {
-                    must.push({
-                        bool: {
-                            should: queries,
-                        },
-                    });
-                }
-            });
-
             const filter: any[] = ElasticSearchService.buildElasticSearchFilter([
                 ...this.searchFiltersForAllQueries,
                 ...(searchFilters ?? []),
             ]);
+
+            const indexForES = tenantId ? `${tenantId}-${resourceType}` : resourceType;
+
+            const query = buildQueryForAllSearchParameters(this.fhirSearchParametersRegistry, request, filter);
 
             const params = {
                 index: indexForES.toLowerCase(),
                 from,
                 size,
                 body: {
-                    query: {
-                        bool: {
-                            filter,
-                            must,
-                        },
-                    },
+                    query,
                 },
             };
             const { total, hits } = await this.executeQuery(params);
@@ -165,7 +111,7 @@ export class ElasticSearchService implements Search {
                 result.previousResultUrl = this.createURL(
                     request.baseUrl,
                     {
-                        ...searchParameterToValue,
+                        ...queryParams,
                         [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: from - size,
                         [SEARCH_PAGINATION_PARAMS.COUNT]: size,
                     },
@@ -177,7 +123,7 @@ export class ElasticSearchService implements Search {
                 result.nextResultUrl = this.createURL(
                     request.baseUrl,
                     {
-                        ...searchParameterToValue,
+                        ...queryParams,
                         [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: from + size,
                         [SEARCH_PAGINATION_PARAMS.COUNT]: size,
                     },
