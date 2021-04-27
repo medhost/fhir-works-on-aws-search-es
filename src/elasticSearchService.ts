@@ -19,7 +19,12 @@ import {
     FhirVersion,
 } from 'fhir-works-on-aws-interface';
 import { ElasticSearch } from './elasticSearch';
-import { DEFAULT_SEARCH_RESULTS_PER_PAGE, SEARCH_PAGINATION_PARAMS, ITERATIVE_INCLUSION_PARAMETERS } from './constants';
+import {
+    DEFAULT_SEARCH_RESULTS_PER_PAGE,
+    SEARCH_PAGINATION_PARAMS,
+    ITERATIVE_INCLUSION_PARAMETERS,
+    TENANT_ID,
+} from './constants';
 import { buildIncludeQueries, buildRevIncludeQueries } from './searchInclusions';
 import { FHIRSearchParametersRegistry } from './FHIRSearchParametersRegistry';
 import { buildQueryForAllSearchParameters } from './QueryBuilder';
@@ -81,14 +86,13 @@ export class ElasticSearchService implements Search {
             const filter: any[] = ElasticSearchService.buildElasticSearchFilter([
                 ...this.searchFiltersForAllQueries,
                 ...(searchFilters ?? []),
+                ...this.tenantFilter(tenantId),
             ]);
-
-            const indexForES = tenantId ? `${tenantId}-${resourceType}` : resourceType;
 
             const query = buildQueryForAllSearchParameters(this.fhirSearchParametersRegistry, request, filter);
 
             const params = {
-                index: indexForES.toLowerCase(),
+                index: resourceType.toLowerCase(),
                 from,
                 size,
                 body: {
@@ -447,5 +451,21 @@ export class ElasticSearchService implements Search {
         }
 
         return filterQuery;
+    }
+
+    /**
+     * ES filter for filtering by tenant
+     * @returns the `filter` for current tenant
+     */
+    // eslint-disable-next-line class-methods-use-this
+    private tenantFilter(tenantId: string): SearchFilter[] {
+        return [
+            {
+                key: TENANT_ID,
+                value: [tenantId],
+                comparisonOperator: '==',
+                logicalOperator: 'AND',
+            },
+        ];
     }
 }
