@@ -17,8 +17,8 @@ describe('parseDateSearchParam', () => {
                 Object {
                   "prefix": "eq",
                   "range": Object {
-                    "end": 2020-12-31T23:59:59.999Z,
-                    "start": 2020-01-01T00:00:00.000Z,
+                    "end": 2020-12-31T21:59:59.999Z,
+                    "start": 2019-12-31T22:00:00.000Z,
                   },
                 }
             `);
@@ -28,8 +28,8 @@ describe('parseDateSearchParam', () => {
                 Object {
                   "prefix": "eq",
                   "range": Object {
-                    "end": 2020-02-29T23:59:59.999Z,
-                    "start": 2020-02-01T00:00:00.000Z,
+                    "end": 2020-02-29T21:59:59.999Z,
+                    "start": 2020-01-31T22:00:00.000Z,
                   },
                 }
             `);
@@ -39,8 +39,8 @@ describe('parseDateSearchParam', () => {
                 Object {
                   "prefix": "eq",
                   "range": Object {
-                    "end": 2020-02-02T23:59:59.999Z,
-                    "start": 2020-02-02T00:00:00.000Z,
+                    "end": 2020-02-02T21:59:59.999Z,
+                    "start": 2020-02-01T22:00:00.000Z,
                   },
                 }
             `);
@@ -50,8 +50,8 @@ describe('parseDateSearchParam', () => {
                 Object {
                   "prefix": "eq",
                   "range": Object {
-                    "end": 2020-02-02T07:07:59.999Z,
-                    "start": 2020-02-02T07:07:00.000Z,
+                    "end": 2020-02-02T05:07:59.999Z,
+                    "start": 2020-02-02T05:07:00.000Z,
                   },
                 }
             `);
@@ -61,8 +61,8 @@ describe('parseDateSearchParam', () => {
                 Object {
                   "prefix": "eq",
                   "range": Object {
-                    "end": 2020-02-02T07:07:07.999Z,
-                    "start": 2020-02-02T07:07:07.000Z,
+                    "end": 2020-02-02T05:07:07.999Z,
+                    "start": 2020-02-02T05:07:07.000Z,
                   },
                 }
             `);
@@ -72,8 +72,8 @@ describe('parseDateSearchParam', () => {
                 Object {
                   "prefix": "eq",
                   "range": Object {
-                    "end": 2020-02-02T07:07:07.777Z,
-                    "start": 2020-02-02T07:07:07.777Z,
+                    "end": 2020-02-02T05:07:07.777Z,
+                    "start": 2020-02-02T05:07:07.777Z,
                   },
                 }
             `);
@@ -124,8 +124,8 @@ describe('dateQuery', () => {
             Object {
               "range": Object {
                 "birthDate": Object {
-                  "gte": 1999-09-09T00:00:00.000Z,
-                  "lte": 1999-09-09T23:59:59.999Z,
+                  "gte": 1999-09-08T21:00:00.000Z,
+                  "lte": 1999-09-09T20:59:59.999Z,
                 },
               },
             }
@@ -136,8 +136,8 @@ describe('dateQuery', () => {
             Object {
               "range": Object {
                 "birthDate": Object {
-                  "gte": 1999-09-09T00:00:00.000Z,
-                  "lte": 1999-09-09T23:59:59.999Z,
+                  "gte": 1999-09-08T21:00:00.000Z,
+                  "lte": 1999-09-09T20:59:59.999Z,
                 },
               },
             }
@@ -151,14 +151,14 @@ describe('dateQuery', () => {
                   Object {
                     "range": Object {
                       "birthDate": Object {
-                        "gt": 1999-09-09T23:59:59.999Z,
+                        "gt": 1999-09-09T20:59:59.999Z,
                       },
                     },
                   },
                   Object {
                     "range": Object {
                       "birthDate": Object {
-                        "lt": 1999-09-09T00:00:00.000Z,
+                        "lt": 1999-09-08T21:00:00.000Z,
                       },
                     },
                   },
@@ -172,7 +172,7 @@ describe('dateQuery', () => {
             Object {
               "range": Object {
                 "birthDate": Object {
-                  "lt": 1999-09-09T23:59:59.999Z,
+                  "lt": 1999-09-09T20:59:59.999Z,
                 },
               },
             }
@@ -183,7 +183,7 @@ describe('dateQuery', () => {
             Object {
               "range": Object {
                 "birthDate": Object {
-                  "lte": 1999-09-09T23:59:59.999Z,
+                  "lte": 1999-09-09T20:59:59.999Z,
                 },
               },
             }
@@ -194,7 +194,7 @@ describe('dateQuery', () => {
             Object {
               "range": Object {
                 "birthDate": Object {
-                  "gt": 1999-09-09T00:00:00.000Z,
+                  "gt": 1999-09-08T21:00:00.000Z,
                 },
               },
             }
@@ -205,7 +205,7 @@ describe('dateQuery', () => {
             Object {
               "range": Object {
                 "birthDate": Object {
-                  "gte": 1999-09-09T00:00:00.000Z,
+                  "gte": 1999-09-08T21:00:00.000Z,
                 },
               },
             }
@@ -216,7 +216,7 @@ describe('dateQuery', () => {
             Object {
               "range": Object {
                 "birthDate": Object {
-                  "gt": 1999-09-09T23:59:59.999Z,
+                  "gt": 1999-09-09T20:59:59.999Z,
                 },
               },
             }
@@ -227,7 +227,7 @@ describe('dateQuery', () => {
             Object {
               "range": Object {
                 "birthDate": Object {
-                  "lt": 1999-09-09T00:00:00.000Z,
+                  "lt": 1999-09-08T21:00:00.000Z,
                 },
               },
             }
