@@ -122,11 +122,53 @@ describe('dateQuery', () => {
     test('no prefix', () => {
         expect(dateQuery(birthdateParam, '1999-09-09')).toMatchInlineSnapshot(`
             Object {
-              "range": Object {
-                "birthDate": Object {
-                  "gte": 1999-09-08T21:00:00.000Z,
-                  "lte": 1999-09-09T20:59:59.999Z,
-                },
+              "bool": Object {
+                "should": Array [
+                  Object {
+                    "range": Object {
+                      "birthDate": Object {
+                        "gte": 1999-09-09T00:00:00.000Z,
+                        "lte": 1999-09-09T23:59:59.999Z,
+                      },
+                    },
+                  },
+                  Object {
+                    "bool": Object {
+                      "must": Array [
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.start",
+                          },
+                        },
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.end",
+                          },
+                        },
+                        Object {
+                          "bool": Object {
+                            "must": Array [
+                              Object {
+                                "range": Object {
+                                  "birthDate.start": Object {
+                                    "gte": 1999-09-09T00:00:00.000Z,
+                                  },
+                                },
+                              },
+                              Object {
+                                "range": Object {
+                                  "birthDate.end": Object {
+                                    "lte": 1999-09-09T23:59:59.999Z,
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
               },
             }
         `);
@@ -134,11 +176,53 @@ describe('dateQuery', () => {
     test('eq', () => {
         expect(dateQuery(birthdateParam, 'eq1999-09-09')).toMatchInlineSnapshot(`
             Object {
-              "range": Object {
-                "birthDate": Object {
-                  "gte": 1999-09-08T21:00:00.000Z,
-                  "lte": 1999-09-09T20:59:59.999Z,
-                },
+              "bool": Object {
+                "should": Array [
+                  Object {
+                    "range": Object {
+                      "birthDate": Object {
+                        "gte": 1999-09-09T00:00:00.000Z,
+                        "lte": 1999-09-09T23:59:59.999Z,
+                      },
+                    },
+                  },
+                  Object {
+                    "bool": Object {
+                      "must": Array [
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.start",
+                          },
+                        },
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.end",
+                          },
+                        },
+                        Object {
+                          "bool": Object {
+                            "must": Array [
+                              Object {
+                                "range": Object {
+                                  "birthDate.start": Object {
+                                    "gte": 1999-09-09T00:00:00.000Z,
+                                  },
+                                },
+                              },
+                              Object {
+                                "range": Object {
+                                  "birthDate.end": Object {
+                                    "lte": 1999-09-09T23:59:59.999Z,
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
               },
             }
         `);
@@ -149,17 +233,63 @@ describe('dateQuery', () => {
               "bool": Object {
                 "should": Array [
                   Object {
-                    "range": Object {
-                      "birthDate": Object {
-                        "gt": 1999-09-09T20:59:59.999Z,
-                      },
+                    "bool": Object {
+                      "should": Array [
+                        Object {
+                          "range": Object {
+                            "birthDate": Object {
+                              "gt": 1999-09-09T23:59:59.999Z,
+                            },
+                          },
+                        },
+                        Object {
+                          "range": Object {
+                            "birthDate": Object {
+                              "lt": 1999-09-09T00:00:00.000Z,
+                            },
+                          },
+                        },
+                      ],
                     },
                   },
                   Object {
-                    "range": Object {
-                      "birthDate": Object {
-                        "lt": 1999-09-08T21:00:00.000Z,
-                      },
+                    "bool": Object {
+                      "must": Array [
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.start",
+                          },
+                        },
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.end",
+                          },
+                        },
+                        Object {
+                          "bool": Object {
+                            "must_not": Object {
+                              "bool": Object {
+                                "must": Array [
+                                  Object {
+                                    "range": Object {
+                                      "birthDate.start": Object {
+                                        "gte": 1999-09-09T00:00:00.000Z,
+                                      },
+                                    },
+                                  },
+                                  Object {
+                                    "range": Object {
+                                      "birthDate.end": Object {
+                                        "lte": 1999-09-09T23:59:59.999Z,
+                                      },
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          },
+                        },
+                      ],
                     },
                   },
                 ],
@@ -170,10 +300,39 @@ describe('dateQuery', () => {
     test('lt', () => {
         expect(dateQuery(birthdateParam, 'lt1999-09-09')).toMatchInlineSnapshot(`
             Object {
-              "range": Object {
-                "birthDate": Object {
-                  "lt": 1999-09-09T20:59:59.999Z,
-                },
+              "bool": Object {
+                "should": Array [
+                  Object {
+                    "range": Object {
+                      "birthDate": Object {
+                        "lt": 1999-09-09T23:59:59.999Z,
+                      },
+                    },
+                  },
+                  Object {
+                    "bool": Object {
+                      "must": Array [
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.start",
+                          },
+                        },
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.end",
+                          },
+                        },
+                        Object {
+                          "range": Object {
+                            "birthDate.start": Object {
+                              "lte": 1999-09-09T23:59:59.999Z,
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
               },
             }
         `);
@@ -181,10 +340,39 @@ describe('dateQuery', () => {
     test('le', () => {
         expect(dateQuery(birthdateParam, 'le1999-09-09')).toMatchInlineSnapshot(`
             Object {
-              "range": Object {
-                "birthDate": Object {
-                  "lte": 1999-09-09T20:59:59.999Z,
-                },
+              "bool": Object {
+                "should": Array [
+                  Object {
+                    "range": Object {
+                      "birthDate": Object {
+                        "lte": 1999-09-09T23:59:59.999Z,
+                      },
+                    },
+                  },
+                  Object {
+                    "bool": Object {
+                      "must": Array [
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.start",
+                          },
+                        },
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.end",
+                          },
+                        },
+                        Object {
+                          "range": Object {
+                            "birthDate.start": Object {
+                              "lte": 1999-09-09T23:59:59.999Z,
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
               },
             }
         `);
@@ -192,10 +380,39 @@ describe('dateQuery', () => {
     test('gt', () => {
         expect(dateQuery(birthdateParam, 'gt1999-09-09')).toMatchInlineSnapshot(`
             Object {
-              "range": Object {
-                "birthDate": Object {
-                  "gt": 1999-09-08T21:00:00.000Z,
-                },
+              "bool": Object {
+                "should": Array [
+                  Object {
+                    "range": Object {
+                      "birthDate": Object {
+                        "gt": 1999-09-09T00:00:00.000Z,
+                      },
+                    },
+                  },
+                  Object {
+                    "bool": Object {
+                      "must": Array [
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.start",
+                          },
+                        },
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.end",
+                          },
+                        },
+                        Object {
+                          "range": Object {
+                            "birthDate.end": Object {
+                              "gte": 1999-09-09T00:00:00.000Z,
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
               },
             }
         `);
@@ -203,10 +420,39 @@ describe('dateQuery', () => {
     test('ge', () => {
         expect(dateQuery(birthdateParam, 'ge1999-09-09')).toMatchInlineSnapshot(`
             Object {
-              "range": Object {
-                "birthDate": Object {
-                  "gte": 1999-09-08T21:00:00.000Z,
-                },
+              "bool": Object {
+                "should": Array [
+                  Object {
+                    "range": Object {
+                      "birthDate": Object {
+                        "gte": 1999-09-09T00:00:00.000Z,
+                      },
+                    },
+                  },
+                  Object {
+                    "bool": Object {
+                      "must": Array [
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.start",
+                          },
+                        },
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.end",
+                          },
+                        },
+                        Object {
+                          "range": Object {
+                            "birthDate.end": Object {
+                              "gte": 1999-09-09T00:00:00.000Z,
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
               },
             }
         `);
@@ -214,10 +460,39 @@ describe('dateQuery', () => {
     test('sa', () => {
         expect(dateQuery(birthdateParam, 'sa1999-09-09')).toMatchInlineSnapshot(`
             Object {
-              "range": Object {
-                "birthDate": Object {
-                  "gt": 1999-09-09T20:59:59.999Z,
-                },
+              "bool": Object {
+                "should": Array [
+                  Object {
+                    "range": Object {
+                      "birthDate": Object {
+                        "gt": 1999-09-09T23:59:59.999Z,
+                      },
+                    },
+                  },
+                  Object {
+                    "bool": Object {
+                      "must": Array [
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.start",
+                          },
+                        },
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.end",
+                          },
+                        },
+                        Object {
+                          "range": Object {
+                            "birthDate.start": Object {
+                              "gt": 1999-09-09T23:59:59.999Z,
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
               },
             }
         `);
@@ -225,10 +500,39 @@ describe('dateQuery', () => {
     test('eb', () => {
         expect(dateQuery(birthdateParam, 'eb1999-09-09')).toMatchInlineSnapshot(`
             Object {
-              "range": Object {
-                "birthDate": Object {
-                  "lt": 1999-09-08T21:00:00.000Z,
-                },
+              "bool": Object {
+                "should": Array [
+                  Object {
+                    "range": Object {
+                      "birthDate": Object {
+                        "lt": 1999-09-09T00:00:00.000Z,
+                      },
+                    },
+                  },
+                  Object {
+                    "bool": Object {
+                      "must": Array [
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.start",
+                          },
+                        },
+                        Object {
+                          "exists": Object {
+                            "field": "birthDate.end",
+                          },
+                        },
+                        Object {
+                          "range": Object {
+                            "birthDate.end": Object {
+                              "lt": 1999-09-09T00:00:00.000Z,
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
               },
             }
         `);

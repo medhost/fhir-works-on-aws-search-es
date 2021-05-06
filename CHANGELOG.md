@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.5.1](https://github.com/awslabs/fhir-works-on-aws-search-es/compare/v2.5.0...v2.5.1) (2021-04-28)
+
+
+### Bug Fixes
+
+* fix ne prefix was matching extra records ([#64](https://github.com/awslabs/fhir-works-on-aws-search-es/issues/64)) ([54fee72](https://github.com/awslabs/fhir-works-on-aws-search-es/commit/54fee7259871a83fc78f584143cba154861eefc3))
+* token search params were matching additional documents ([#65](https://github.com/awslabs/fhir-works-on-aws-search-es/issues/65)) ([046238a](https://github.com/awslabs/fhir-works-on-aws-search-es/commit/046238a5fe7c581885769dccf1f47d3f781a642a))
+
+## [2.5.0](https://github.com/awslabs/fhir-works-on-aws-search-es/compare/v2.4.0...v2.5.0) (2021-04-23)
+
+
+### Features
+
+* allow repeated search parameters ([#62](https://github.com/awslabs/fhir-works-on-aws-search-es/issues/62)) ([68f2173](https://github.com/awslabs/fhir-works-on-aws-search-es/commit/68f21733c74c857724ffc1a950303b544aa6601f))
+* allow sorting by date type parameters ([#60](https://github.com/awslabs/fhir-works-on-aws-search-es/issues/60)) ([a7d9bf0](https://github.com/awslabs/fhir-works-on-aws-search-es/commit/a7d9bf02228cf6d2b0efd5de608cd3ee4b5b3089))
+* support Period type fields for date params ([#61](https://github.com/awslabs/fhir-works-on-aws-search-es/issues/61)) ([d36e3af](https://github.com/awslabs/fhir-works-on-aws-search-es/commit/d36e3afa7eb549576f9c26911ba602350ca86462))
+
+## [2.4.0](https://github.com/awslabs/fhir-works-on-aws-search-es/compare/v2.3.0...v2.4.0) (2021-04-19)
+
+
+### Features
+
+* support number and quantity type parameters ([#58](https://github.com/awslabs/fhir-works-on-aws-search-es/issues/58)) ([ac5ca42](https://github.com/awslabs/fhir-works-on-aws-search-es/commit/ac5ca42a165bb277b482f763d086a06ae7b8c106))
+
 ## [2.3.0](https://github.com/awslabs/fhir-works-on-aws-search-es/compare/v2.2.0...v2.3.0) (2021-04-09)
 
 
