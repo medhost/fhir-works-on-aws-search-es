@@ -1753,7 +1753,7 @@ Array [
                     Object {
                       "range": Object {
                         "birthDate": Object {
-                          "gt": 1990-01-01T00:00:00.000Z,
+                          "gt": 1989-12-31T21:00:00.000Z,
                         },
                       },
                     },
@@ -1773,7 +1773,7 @@ Array [
                           Object {
                             "range": Object {
                               "birthDate.end": Object {
-                                "gte": 1990-01-01T00:00:00.000Z,
+                                "gte": 1989-12-31T21:00:00.000Z,
                               },
                             },
                           },
@@ -1935,6 +1935,11 @@ Array [
                   "someFieldThatTellsIfTheResourceIsActive": "AVAILABLE",
                 },
               },
+              Object {
+                "match": Object {
+                  "tenantId": "tenant1",
+                },
+              },
             ],
             "must": Array [
               Object {
@@ -1951,6 +1956,7 @@ Array [
               },
               Object {
                 "multi_match": Object {
+                  "analyzer": "keyword",
                   "fields": Array [
                     "name",
                     "name.*",
@@ -1961,6 +1967,7 @@ Array [
               },
               Object {
                 "multi_match": Object {
+                  "analyzer": "keyword",
                   "fields": Array [
                     "name",
                     "name.*",
@@ -2156,34 +2163,23 @@ Array [
                   "someFieldThatTellsIfTheResourceIsActive": "AVAILABLE",
                 },
               },
+              Object {
+                "match": Object {
+                  "tenantId": "tenant1",
+                },
+              },
             ],
             "must": Array [
               Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "multi_match": Object {
-                        "fields": Array [
-                          "telecom.code.keyword",
-                          "telecom.coding.code.keyword",
-                          "telecom.value.keyword",
-                          "telecom",
-                        ],
-                        "lenient": true,
-                        "query": "1234567",
-                      },
-                    },
-                    Object {
-                      "multi_match": Object {
-                        "fields": Array [
-                          "telecom.system",
-                          "telecom.system.*",
-                        ],
-                        "lenient": true,
-                        "query": "phone",
-                      },
-                    },
+                "multi_match": Object {
+                  "fields": Array [
+                    "telecom.code.keyword",
+                    "telecom.coding.code.keyword",
+                    "telecom.value.keyword",
+                    "telecom",
                   ],
+                  "lenient": true,
+                  "query": "1234567",
                 },
               },
             ],
